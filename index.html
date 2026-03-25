@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macierz placementów – Onet Premium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --yellow: #FFD000; --yellow-pale: #FFFBEA; --yellow-mid: #FFF3B0;
+  --dark: #0F0F0F; --mid: #3D3D3D; --soft: #6B7280;
+  --border: #EAECF0; --bg: #F8F9FC; --white: #FFFFFF;
+  --green: #166534; --green-bg: #F0FDF4; --green-border: #BBF7D0;
+  --purple: #581C87; --purple-bg: #FAF5FF; --purple-border: #E9D5FF;
+  --blue: #1E3A8A; --blue-bg: #EFF6FF; --blue-border: #BFDBFE;
+  --na: #D1D5DB; --na-bg: #F9FAFB; --r: 12px;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; padding: 48px 32px 80px; font-size: 14px; line-height: 1.5; }
+
+.page-header { max-width: 1100px; margin: 0 auto 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+.page-header-meta { display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--soft); margin-bottom: 16px; }
+.meta-dot { width: 18px; height: 18px; background: var(--yellow); border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.page-header h1 { font-family: 'Sora', sans-serif; font-size: 30px; font-weight: 800; letter-spacing: -0.8px; color: var(--dark); margin-bottom: 10px; }
+.page-header-sub { font-size: 14px; color: var(--soft); max-width: 620px; line-height: 1.6; }
+
+.main-layout { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+
+.matrix-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: 0 1px 8px rgba(0,0,0,0.05); }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0; vertical-align: top; }
+th:last-child, td:last-child { border-right: none; }
+thead tr:last-child th { border-bottom: 2px solid var(--border); }
+tbody tr:last-child td { border-bottom: none; }
+
+.th-group { background: var(--bg); padding: 10px 14px; font-family: 'Sora', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--soft); text-align: center; border-bottom: 1px solid var(--border); }
+.th-group.g-winback { background: var(--purple-bg); color: var(--purple); }
+.th-group.g-acq { background: var(--blue-bg); color: var(--blue); }
+
+.th-seg { padding: 10px 12px; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700; color: var(--mid); text-align: center; line-height: 1.3; white-space: nowrap; background: var(--white); }
+.th-seg small { display: block; font-size: 10px; font-weight: 400; color: var(--soft); margin-top: 2px; }
+.th-seg.s-default { background: var(--bg); color: var(--soft); }
+.th-seg.s-winback { background: var(--purple-bg); color: var(--purple); }
+.th-seg.s-acq { background: var(--blue-bg); color: var(--blue); }
+
+/* Placement column */
+.td-placement { background: var(--bg); padding: 14px 14px 14px 16px; width: 200px; min-width: 200px; border-right: 2px solid var(--border); cursor: pointer; user-select: none; }
+.pl-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+.pl-icon { width: 28px; height: 28px; background: var(--yellow-pale); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: background 0.15s; }
+.pl-chevron { width: 20px; height: 20px; border-radius: 50%; background: #E5E7EB; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 4px; transition: background 0.15s, transform 0.25s; }
+.pl-name { font-family: 'Sora', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--dark); line-height: 1.3; display: block; }
+.pl-sub { font-size: 10.5px; color: var(--soft); display: block; margin-top: 2px; }
+.pl-hint { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 10px; color: #9CA3AF; font-weight: 500; }
+.pl-warn { display: inline-block; margin-top: 6px; font-size: 10px; color: #9A3412; background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 4px; padding: 2px 6px; line-height: 1.4; }
+
+/* Data cells */
+.td-cell { padding: 12px 13px; font-size: 12px; line-height: 1.45; transition: background 0.1s; }
+.note { display: block; font-size: 10.5px; color: var(--soft); margin-top: 3px; }
+.note-warn { color: #9A3412; }
+.c-na { color: var(--na); font-style: italic; text-align: center; background: var(--na-bg); font-size: 11px; vertical-align: middle; }
+.c-default { color: var(--mid); }
+.c-good { color: var(--green); font-weight: 600; background: var(--green-bg); }
+.c-comeback { color: var(--purple); font-weight: 600; background: var(--purple-bg); }
+.c-always { background: var(--yellow-pale); text-align: center; font-weight: 700; color: var(--dark); border-top: 2px solid var(--yellow); padding: 14px; font-size: 13px; }
+
+/* Row hover */
+.data-row { cursor: pointer; }
+.data-row:hover .td-cell { background: #FEFDF0; }
+.data-row:hover .c-good { background: #DCFCE7; }
+.data-row:hover .c-comeback { background: #F3E8FF; }
+.data-row:hover .c-na { background: var(--na-bg); }
+.data-row:hover .c-always { background: var(--yellow-mid); }
+.data-row:hover .td-placement { background: #FAFAE8; }
+.data-row:hover .pl-icon { background: var(--yellow); }
+.data-row:hover .pl-hint { color: var(--mid); }
+
+/* Active row */
+.data-row.is-active .td-cell { background: #FEFDF0; }
+.data-row.is-active .td-placement { background: #FAFAE8; border-bottom-color: transparent; }
+.data-row.is-active .pl-icon { background: var(--yellow); }
+.data-row.is-active .pl-chevron { background: var(--yellow); transform: rotate(180deg); }
+.data-row.is-active .pl-hint { color: var(--mid); }
+
+/* Glossary panel */
+.gloss-row td { padding: 0; border-bottom: 1px solid var(--border); background: transparent; }
+.gloss-panel { overflow: hidden; max-height: 0; transition: max-height 0.35s ease; background: #FEFDF5; border-top: 2px solid var(--yellow); }
+.gloss-panel.open { max-height: 800px; }
+.gloss-inner { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+.gloss-block { padding: 20px 22px; border-right: 1px solid var(--border); }
+.gloss-block:last-child { border-right: none; }
+.gloss-block.span2 { grid-column: span 2; }
+.gloss-block-title { font-family: 'Sora', sans-serif; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--soft); margin-bottom: 10px; }
+.gloss-desc { font-size: 12.5px; color: var(--mid); line-height: 1.65; }
+.gloss-terms { display: flex; flex-direction: column; gap: 7px; }
+.gloss-term { display: flex; gap: 8px; align-items: flex-start; }
+.gloss-term-key { font-size: 10.5px; font-weight: 600; color: var(--dark); background: var(--border); border-radius: 4px; padding: 2px 7px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; }
+.gtk-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.gtk-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.gloss-term-val { font-size: 11.5px; color: var(--soft); line-height: 1.55; }
+
+/* Bottom glossary */
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--soft); margin-bottom: 14px; padding-left: 2px; }
+.section-sublabel { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--mid); margin-bottom: 10px; padding-left: 2px; }
+.glossary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.glossary-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.glossary-grid .glossary-card:nth-child(n+5) { grid-column: span 1; }
+.glossary-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+.glossary-card h4 { font-family: 'Sora', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--dark); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid var(--yellow); display: inline-block; }
+.glossary-card p, .glossary-card li { font-size: 12px; color: var(--mid); line-height: 1.55; }
+.glossary-card ul { padding-left: 16px; margin-top: 5px; }
+.glossary-card li { margin-bottom: 4px; }
+.glossary-card em { color: var(--soft); font-size: 11px; }
+
+.page-footer { max-width: 1100px; margin: 40px auto 0; padding-top: 28px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--soft); display: flex; align-items: center; gap: 8px; }
+
+/* Tooltips */
+.tip { position: relative; display: inline; cursor: help; border-bottom: 1px dashed currentColor; }
+.tip-box { position: fixed; background: var(--dark); color: #fff; font-size: 11.5px; font-weight: 400; line-height: 1.6; padding: 8px 11px; border-radius: 7px; width: 220px; white-space: normal; pointer-events: none; z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.22); display: none; }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="page-header-meta">
+    <span class="meta-dot"></span>
+    Onet Premium · Dokumentacja wewnętrzna
+  </div>
+  <h1>Placementy na Stronie Głównej</h1>
+  <p class="page-header-sub">Przegląd placementów akwizycyjnych na Stronie Głównej (SG) z podziałem na segmenty. Kliknij dowolny wiersz, aby rozwinąć opis i słowniczek danego placementu.</p>
+</header>
+
+<main class="main-layout">
+  <div>
+    <div class="matrix-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th rowspan="3" style="background:var(--bg);font-family:'Sora',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--soft);padding:12px 16px;border-right:2px solid var(--border);vertical-align:bottom;width:200px;min-width:200px;">Placement</th>
+              <th class="th-group">Brak segmentu</th>
+              <th class="th-group g-winback" colspan="2">Winback <span style="font-weight:400;text-transform:none;font-size:10px;">– byli subskrybenci</span></th>
+              <th class="th-group g-acq" colspan="4">Akwizycja <span style="font-weight:400;text-transform:none;font-size:10px;">– pozyskanie</span></th>
+            </tr>
+            <tr>
+              <th class="th-seg s-default" rowspan="2">Standard<small>Prospect Default</small></th>
+              <th class="th-seg s-winback">Fresh<small>&lt; 30 dni</small></th>
+              <th class="th-seg s-winback">Old<small>30–365 dni</small></th>
+              <th class="th-seg s-acq" colspan="2"><span class="tip" data-tip="Likelihood to Subscribe – wysoka skłonność do zakupu (skala 5–10)">High LTS</span><small>Skłonność 5–10</small></th>
+              <th class="th-seg s-acq" colspan="2"><span class="tip" data-tip="Likelihood to Subscribe – niska skłonność do zakupu (skala 1–4)">Low LTS</span><small>Skłonność 1–4</small></th>
+            </tr>
+            <tr>
+              <th class="th-seg s-winback"></th>
+              <th class="th-seg s-winback"></th>
+              <th class="th-seg s-acq"><span class="tip" data-tip="Frequency – wysoka częstotliwość odwiedzin SG: Devoted (20+ dni) + Medium (11–20 dni) w ostatnich 30 dniach">High FRQ</span><small>Devoted + Medium</small></th>
+              <th class="th-seg s-acq"><span class="tip" data-tip="Frequency – niska częstotliwość odwiedzin SG: Light (2–10 dni) + One Day (1 dzień) w ostatnich 30 dniach">Low FRQ</span><small>Light + One Day</small></th>
+              <th class="th-seg s-acq"><span class="tip" data-tip="Frequency – wysoka częstotliwość odwiedzin SG: Devoted (20+ dni) + Medium (11–20 dni) w ostatnich 30 dniach">High FRQ</span><small>Devoted + Medium</small></th>
+              <th class="th-seg s-acq"><span class="tip" data-tip="Frequency – niska częstotliwość odwiedzin SG: Light (2–10 dni) + One Day (1 dzień) w ostatnich 30 dniach">Low FRQ</span><small>Light + One Day</small></th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- WELCOME -->
+            <tr class="data-row" data-id="welcome" onclick="toggleGloss('welcome')">
+              <td class="td-placement">
+                <div class="pl-header">
+                  <div class="pl-icon">🖥</div>
+                  <div class="pl-chevron"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <span class="pl-name">Welcome Screen</span>
+                <span class="pl-sub">Pełnoekranowy</span>
+                <span class="pl-hint"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
+              </td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">brak segmentacji · określone dni tygodnia</span><span class="note">raz dziennie per user</span></td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">brak segmentacji · określone dni tygodnia</span><span class="note">raz dziennie per user</span></td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">brak segmentacji · określone dni tygodnia</span><span class="note">raz dziennie per user</span></td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">brak segmentacji · określone dni tygodnia</span><span class="note">raz dziennie per user</span></td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">brak segmentacji · określone dni tygodnia</span><span class="note">raz dziennie per user</span></td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">brak segmentacji · określone dni tygodnia</span><span class="note">raz dziennie per user</span></td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">brak segmentacji · określone dni tygodnia</span><span class="note">raz dziennie per user</span></td>
+            </tr>
+            <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-welcome"><div class="gloss-inner">
+              <div class="gloss-block span2">
+                <div class="gloss-block-title">Opis placementu</div>
+                <p class="gloss-desc">Pełnoekranowy ekran powitalny wyświetlany przed wejściem do serwisu. Aktualnie <strong>brak możliwości segmentacji</strong> – kreacja jest uniwersalna/domyślna dla wszystkich segmentów (możliwa rotacja komunikatów). Wyświetlany w <strong>określone dni tygodnia</strong>, każdemu userowi <strong>tylko raz dziennie</strong> – przy pierwszym wejściu na SG danego dnia. Nie wyświetla się, gdy format jest wykupiony przez reklamodawcę lub aktywny jest Interstitial.</p>
+              </div>
+              <div class="gloss-block">
+                <div class="gloss-block-title">Kiedy odpada</div>
+                <div class="gloss-terms">
+                  <div class="gloss-term"><span class="gloss-term-key">Interstitial</span><span class="gloss-term-val">Gdy aktywna jest reklama pełnoekranowa kupiona przez reklamodawcę.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">Sprzedany format</span><span class="gloss-term-val">Gdy format jest wykupiony przez zewnętrznego sponsora.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">Relacja z Modalem</span><span class="gloss-term-val">W dniach gdy aktywny jest Welcome Screen, modal nie jest serwowany – user dostaje tylko jeden format na wejściu.</span></div>
+                </div>
+              </div>
+            </div></div></td></tr>
+
+            <!-- TOP -->
+            <tr class="data-row" data-id="top" onclick="toggleGloss('top')">
+              <td class="td-placement">
+                <div class="pl-header">
+                  <div class="pl-icon">📌</div>
+                  <div class="pl-chevron"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <span class="pl-name">Top – Belka górna</span>
+                <span class="pl-sub">Nad headerem serwisu</span>
+                <span class="pl-hint"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
+              </td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">bez ceny</span></td>
+              <td class="td-cell c-good">Good Offer<span class="note">dedykowana kreacja · bez rotacji</span></td>
+              <td class="td-cell c-comeback">„Come back" offer<span class="note">dedykowana kreacja · bez rotacji</span></td>
+              <td class="td-cell c-good">Good Offer<span class="note">dedykowana kreacja · bez rotacji</span></td>
+              <td class="td-cell c-good">Good Offer<span class="note">dedykowana kreacja · bez rotacji</span></td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">bez ceny</span></td>
+              <td class="td-cell c-default">Kreacja uniwersalna<span class="note">bez ceny</span></td>
+            </tr>
+            <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-top"><div class="gloss-inner">
+              <div class="gloss-block span2">
+                <div class="gloss-block-title">Opis placementu</div>
+                <p class="gloss-desc">Wąski pasek (belka) nad headerem serwisu – powyżej logo i nawigacji. <strong>Na mobile widoczny zawsze.</strong> Na desktopie widoczny wtedy, gdy nie ma reklamy sponsorskiej – sponsoring ma pierwszeństwo i przykrywa ten format. Komunikacja uzależniona od segmentu użytkownika.</p>
+              </div>
+              <div class="gloss-block">
+                <div class="gloss-block-title">Typy komunikacji</div>
+                <div class="gloss-terms">
+                  <div class="gloss-term"><span class="gloss-term-key gtk-green">Good Offer</span><span class="gloss-term-val">Dedykowana oferta cenowa. Dla: High LTS (oba FRQ) i Winback Fresh.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key gtk-purple">Come back</span><span class="gloss-term-val">Dla Winback Old – komunikat zapraszający do powrotu.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">Universal</span><span class="gloss-term-val">Kreacja domyślna bez ceny – Low LTS i Prospect Default.</span></div>
+                </div>
+              </div>
+            </div></div></td></tr>
+
+            <!-- MODAL -->
+            <tr class="data-row" data-id="modal" onclick="toggleGloss('modal')">
+              <td class="td-placement">
+                <div class="pl-header">
+                  <div class="pl-icon">💬</div>
+                  <div class="pl-chevron"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <span class="pl-name">Modal akwizycyjny</span>
+                <span class="pl-sub">Pop-up z ofertą</span>
+                <span class="pl-hint"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
+              </td>
+              <td class="td-cell c-na">—</td>
+              <td class="td-cell c-good">Good Offer<span class="note">cap: 1/3 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <td class="td-cell c-comeback">„Come back" offer<span class="note">cap: 1/7 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <td class="td-cell c-good">Good Offer<span class="note">cap: 1/5 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <td class="td-cell c-good">Good Offer<span class="note">cap: 1/3 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <td class="td-cell c-good">Good Offer<span class="note">cap: 1/7 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <td class="td-cell c-na">—</td>
+            </tr>
+            <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-modal"><div class="gloss-inner">
+              <div class="gloss-block span2">
+                <div class="gloss-block-title">Opis placementu</div>
+                <p class="gloss-desc">Wyskakujący pop-up, okno z ofertą Premium. Wyświetla się od razu po wejściu na SG, ale <strong>wyłącznie w dni, gdy nie jest aktywny Welcome Screen</strong> – user nigdy nie dostaje obu formatów tego samego dnia. Rodzaj komunikatu oraz capping uzależnione od segmentu – szczegóły w tabeli powyżej.</p>
+              </div>
+              <div class="gloss-block">
+                <div class="gloss-block-title">Capping wg segmentu</div>
+                <div class="gloss-terms">
+                  <div class="gloss-term"><span class="gloss-term-key">1/3 dni</span><span class="gloss-term-val">Winback Fresh i High LTS / Low FRQ.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">1/5 dni</span><span class="gloss-term-val">High LTS / High FRQ.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">1/7 dni</span><span class="gloss-term-val">Winback Old i Low LTS / High FRQ.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">N/A</span><span class="gloss-term-val">Prospect Default i Low LTS / Low FRQ – modal nie jest serwowany.</span></div>
+                </div>
+              </div>
+            </div></div></td></tr>
+
+            <!-- ONBOARDING -->
+            <tr class="data-row" data-id="onboarding" onclick="toggleGloss('onboarding')">
+              <td class="td-placement">
+                <div class="pl-header">
+                  <div class="pl-icon">🔲</div>
+                  <div class="pl-chevron"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <span class="pl-name">Onboarding</span>
+                <span class="pl-sub">Sekcja kafelkowa</span>
+                <span class="pl-hint"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
+              </td>
+              <td class="td-cell c-default">Zielona sekcja kafelkowa<span class="note">kreacja edukacyjna</span></td>
+              <td class="td-cell c-good">Layer Good Offer (5 PV)<span class="note">potem rotacja: layer Universal / Good Offer (co 3 PV)</span></td>
+              <td class="td-cell c-default">Zielona sekcja kafelkowa<span class="note">kreacja edukacyjna</span></td>
+              <td class="td-cell c-good">Layer Good Offer (5 PV)<span class="note">potem rotacja: layer Universal / Good Offer (co 3 PV)</span></td>
+              <td class="td-cell c-comeback">Zielona sekcja kafelkowa (3 PV)<span class="note">→ layer Good Offer (co 3 PV)</span></td>
+              <td class="td-cell c-comeback">Zielona sekcja kafelkowa<span class="note">+ rotacja kafelkami</span></td>
+              <td class="td-cell c-default">Zielona sekcja kafelkowa<span class="note">kreacja edukacyjna</span></td>
+            </tr>
+            <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-onboarding"><div class="gloss-inner">
+              <div class="gloss-block span2">
+                <div class="gloss-block-title">Opis placementu</div>
+                <p class="gloss-desc">Sekcja kafelkowa o charakterze <strong>edukacyjnym (Zielona sekcja kafelkowa)</strong> – prezentuje zakres oferty Premium. Dla wybranych segmentów sekcja może być przykryta <strong>layerem</strong> o identycznych rozmiarach – z kreacją Universal lub Good Offer. Gdy layer jest aktywny, Under Onboarding nie pojawia się. Dla segmentu Low LTS / Low FRQ aktywna jest <strong>rotacja kafelkami</strong> (zmiana kolejności przy każdej wizycie). Szczegóły w tabeli powyżej.</p>
+              </div>
+              <div class="gloss-block">
+                <div class="gloss-block-title">Pojęcia</div>
+                <div class="gloss-terms">
+                  <div class="gloss-term"><span class="gloss-term-key">Layer</span><span class="gloss-term-val">Nakładka o tych samych wymiarach co sekcja kafelkowa – zastępuje ją w całości. Gdy aktywny, Under Onboarding nie pojawia się.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">Rotacja kafelkami</span><span class="gloss-term-val">Zmiana kolejności kafelków edukacyjnych przy każdej wizycie – do testowania angażowania.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">PV (Page Views)</span><span class="gloss-term-val">Liczba odsłon określająca jak długo serwowana jest dana kreacja przed przełączeniem.</span></div>
+                </div>
+              </div>
+            </div></div></td></tr>
+
+            <!-- UNDER ONBOARDING -->
+            <tr class="data-row" data-id="underob" onclick="toggleGloss('underob')">
+              <td class="td-placement">
+                <div class="pl-header">
+                  <div class="pl-icon">⬇</div>
+                  <div class="pl-chevron"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <span class="pl-name">Under Onboarding</span>
+                <span class="pl-sub">CTA pod sekcją</span>
+                <span class="pl-warn">⚠ tylko gdy Onboarding widoczny</span>
+                <span class="pl-hint" style="margin-top:6px;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
+              </td>
+              <td class="td-cell c-default">Kreacja uniwersalna</td>
+              <td class="td-cell c-na">—</td>
+              <td class="td-cell c-comeback">„Come back" offer</td>
+              <td class="td-cell c-na">—</td>
+              <td class="td-cell c-good">Good Offer</td>
+              <td class="td-cell c-comeback">Sekwencja<span class="note">kreacja uniwersalna → Good Offer</span></td>
+              <td class="td-cell c-comeback">Sekwencja<span class="note">kreacja uniwersalna → Good Offer</span></td>
+            </tr>
+            <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-underob"><div class="gloss-inner">
+              <div class="gloss-block span2">
+                <div class="gloss-block-title">Opis placementu</div>
+                <p class="gloss-desc">Banner CTA bezpośrednio pod sekcją Onboarding. Wyświetlany <strong>wyłącznie wtedy, gdy sekcja kafelkowa (Zielona sekcja kafelkowa) jest widoczna</strong> – nie pojawia się, gdy aktywny jest layer. Dla segmentów High LTS / High FRQ i Winback Fresh nie jest serwowany. W segmentach z sekwencją kreacja rotuje: kreacja uniwersalna → Good Offer.</p>
+              </div>
+              <div class="gloss-block">
+                <div class="gloss-block-title">Sekwencja rotacji</div>
+                <div class="gloss-terms">
+                  <div class="gloss-term"><span class="gloss-term-key">Odsłona 1+</span><span class="gloss-term-val">Kreacja uniwersalna – buduje świadomość i wartość Premium bez podawania ceny.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">Kolejne PV</span><span class="gloss-term-val">Good Offer – konkretna cena i CTA. Stopniowe oswajanie przed twardą ofertą.</span></div>
+                </div>
+              </div>
+            </div></div></td></tr>
+
+            <!-- LIFESTYLE -->
+            <tr class="data-row" data-id="lifestyle" onclick="toggleGloss('lifestyle')">
+              <td class="td-placement">
+                <div class="pl-header">
+                  <div class="pl-icon">🌟</div>
+                  <div class="pl-chevron"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="#6B7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <span class="pl-name">Sekcja Premium / Lifestyle</span>
+                <span class="pl-sub">Zawsze wyświetlana</span>
+                <span class="pl-hint"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
+              </td>
+              <td class="td-cell c-always" colspan="7">✦ Wyświetlana zawsze – dla wszystkich segmentów, bez cappingu i targetowania</td>
+            </tr>
+            <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-lifestyle"><div class="gloss-inner">
+              <div class="gloss-block span2">
+                <div class="gloss-block-title">Opis placementu</div>
+                <p class="gloss-desc">Sekcja z materiałami Premium na stronie głównej po prawej stronie widgetu. Tytuł sekcji jest stały – taki sam na desktop i mobile. Sekcja jest <strong>wydawana ręcznie</strong>. Brak labelek „premium" na kartach treści.</p>
+              </div>
+              <div class="gloss-block">
+                <div class="gloss-block-title">Logika kart</div>
+                <div class="gloss-terms">
+                  <div class="gloss-term"><span class="gloss-term-key">Tytuł zajawki</span><span class="gloss-term-val">Maks. 3 linie. Autor wyświetlany tylko jeśli istnieje.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">Dynamiczna wys.</span><span class="gloss-term-val">Biały kontener dopasowuje się do treści (tytuł + autor). Stała wysokość powodowała pustą przestrzeń i nienaturalne wyrównanie – dynamiczna daje spójniejszy efekt.</span></div>
+                  <div class="gloss-term"><span class="gloss-term-key">Małe karty</span><span class="gloss-term-val">Tytuł maks. 3 linie; przy przepełnieniu obcinamy z wielokropkiem (…).</span></div>
+                </div>
+              </div>
+            </div></div></td></tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM GLOSSARY -->
+  <div style="display:flex; flex-direction:column; gap:20px;">
+
+    <div>
+      <p class="section-label">Słowniczek</p>
+      <p class="section-sublabel">Segmenty użytkowników</p>
+      <div class="glossary-grid glossary-grid--3">
+        <div class="glossary-card">
+          <h4>Winback</h4>
+          <p>Były subskrybent, który zrezygnował z subskrypcji.</p>
+          <ul>
+            <li><strong>Fresh &lt; 30 dni</strong> – churned niedawno → Good Offer.</li>
+            <li><strong>Old 30–365 dni</strong> – churned dawniej → „Come back" offer.</li>
+            <li><em>Po 365 dniach traktowany jak nowy user (Acquisition).</em></li>
+          </ul>
+        </div>
+        <div class="glossary-card">
+          <h4>LTS</h4>
+          <p>Likelihood to Subscribe – ocena skłonności do zakupu (skala 1–10).</p>
+          <ul>
+            <li><strong>High LTS (5–10)</strong> – wysoka skłonność.</li>
+            <li><strong>Low LTS (1–4)</strong> – niska skłonność.</li>
+          </ul>
+        </div>
+        <div class="glossary-card">
+          <h4>FRQ</h4>
+          <p>Częstotliwość odwiedzin SG w ostatnich 30 dniach.</p>
+          <ul>
+            <li><strong>High FRQ</strong> = Devoted (20+ dni) + Medium (11–20 dni)</li>
+            <li><strong>Low FRQ</strong> = Light (2–10 dni) + One Day (1 dzień)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="section-sublabel">Rodzaj komunikatu</p>
+      <div class="glossary-grid glossary-grid--3">
+        <div class="glossary-card">
+          <h4>Good Offer</h4>
+          <p>Dedykowana kreacja z konkretną ofertą cenową Premium. Kierowana do userów o wysokiej skłonności do zakupu (High LTS) oraz byłych subskrybentów, którzy churned niedawno (Winback Fresh). Zawiera wyraźne CTA z ceną.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>Come back offer</h4>
+          <p>Kreacja skierowana wyłącznie do byłych subskrybentów (Winback Old, 30–365 dni). Komunikat nawiązuje do poprzedniej subskrypcji i zachęca do powrotu – bez agresywnego sprzedażowego tonu, bardziej relacyjny.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>Kreacja uniwersalna <em style="font-weight:400;font-size:11px;color:var(--soft);">(Universal)</em></h4>
+          <p>Domyślna kreacja bez podawania ceny. Stosowana gdy nie ma podstaw do serwowania spersonalizowanej oferty (brak segmentu lub Low LTS). Buduje świadomość wartości Premium bez twardego CTA sprzedażowego.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="section-sublabel">Inne pojęcia</p>
+      <div class="glossary-grid glossary-grid--3">
+        <div class="glossary-card">
+          <h4>Layer</h4>
+          <p>Nakładka o tych samych wymiarach co sekcja kafelkowa – zastępuje ją w całości. Gdy layer jest aktywny, Under Onboarding nie pojawia się.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>Zielona sekcja kafelkowa</h4>
+          <p>Stała sekcja edukacyjna na SG – prezentuje zakres oferty Premium (źródła, dziennikarze, podcasty). Domyślna forma Onboardingu; zastępowana layerem dla wybranych segmentów.</p>
+        </div>
+        <div class="glossary-card">
+          <h4>Rotacja kafelkami</h4>
+          <p>Zmiana kolejności kafelków edukacyjnych przy każdej wizycie usera – stosowana do testowania angażowania w segmencie Low LTS / Low FRQ.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="page-footer">
+  <span class="meta-dot" style="width:12px;height:12px;"></span>
+  Onet Premium · Strona Główna (SG) · Placementy akwizycyjne · 2025 · Dokument wewnętrzny
+</footer>
+
+<script>
+let openId = null;
+function toggleGloss(id) {
+  const panel = document.getElementById('gloss-panel-' + id);
+  const row = document.querySelector('[data-id="' + id + '"]');
+  if (openId && openId !== id) {
+    document.getElementById('gloss-panel-' + openId).classList.remove('open');
+    document.querySelector('[data-id="' + openId + '"]').classList.remove('is-active');
+  }
+  if (openId === id) {
+    panel.classList.remove('open');
+    row.classList.remove('is-active');
+    openId = null;
+  } else {
+    panel.classList.add('open');
+    row.classList.add('is-active');
+    openId = id;
+  }
+}
+
+// Inline tooltips for glossary terms in table cells
+const TERM_TIPS = [
+  {
+    pattern: /Good Offer/g,
+    tip: 'Kreacja z konkretną ofertą cenową Premium. Kierowana do userów o wysokiej skłonności do zakupu (High LTS) i byłych subskrybentów (Winback Fresh). Zawiera wyraźne CTA z ceną.'
+  },
+  {
+    pattern: /„Come back" offer/g,
+    tip: 'Kreacja dla byłych subskrybentów (Winback Old, 30–365 dni). Nawiązuje do poprzedniej subskrypcji i zaprasza do powrotu – bez agresywnego tonu sprzedażowego.'
+  },
+  {
+    pattern: /Kreacja uniwersalna/g,
+    tip: 'Domyślna kreacja bez podawania ceny (Universal). Stosowana gdy brak podstaw do serwowania spersonalizowanej oferty. Buduje świadomość wartości Premium bez twardego CTA.'
+  },
+  {
+    pattern: /Layer Good Offer|layer Good Offer/g,
+    tip: 'Nakładka (layer) z kreacją Good Offer – zastępuje Zieloną sekcję kafelkową w całości, zachowując te same wymiary. Gdy aktywna, Under Onboarding nie jest serwowany.'
+  },
+  {
+    pattern: /layer Universal/g,
+    tip: 'Nakładka (layer) z kreacją Universal – zastępuje Zieloną sekcję kafelkową. Kreacja bez ceny, buduje świadomość Premium.'
+  },
+  {
+    pattern: /Zielona sekcja kafelkowa/g,
+    tip: 'Stała sekcja edukacyjna na SG – prezentuje zakres oferty Premium (źródła, dziennikarze, podcasty). Domyślna forma Onboardingu; zastępowana layerem dla wybranych segmentów.'
+  },
+  {
+    pattern: /rotacja kafelkami/g,
+    tip: 'Zmiana kolejności kafelków edukacyjnych przy każdej wizycie usera – stosowana do testowania angażowania.'
+  },
+  {
+    pattern: /Sekwencja/g,
+    tip: 'Rotacja kreacji w określonej kolejności: najpierw kreacja uniwersalna (buduje świadomość), potem Good Offer (konkretna cena + CTA). Zmiana następuje po określonej liczbie PV.'
+  }
+];
+
+function wrapTerms(node) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const parent = node.parentNode;
+    // Don't process inside .tip spans or non-visible elements
+    if (parent.classList && (parent.classList.contains('tip') || parent.classList.contains('note'))) return;
+    let text = node.textContent;
+    let changed = false;
+    for (const { pattern, tip } of TERM_TIPS) {
+      pattern.lastIndex = 0;
+      if (pattern.test(text)) { changed = true; break; }
+    }
+    if (!changed) return;
+    const tmp = document.createElement('span');
+    tmp.innerHTML = text;
+    for (const { pattern, tip } of TERM_TIPS) {
+      pattern.lastIndex = 0;
+      tmp.innerHTML = tmp.innerHTML.replace(pattern, (match) =>
+        `<span class="tip" data-tip="${tip}">${match}</span>`
+      );
+    }
+    // Only replace if something actually changed
+    if (tmp.innerHTML !== text) {
+      const frag = document.createDocumentFragment();
+      frag.appendChild(tmp);
+      parent.replaceChild(frag, node);
+    }
+  } else if (node.nodeType === Node.ELEMENT_NODE) {
+    // Skip chevrons, icons, glossary panels, footer
+    if (node.classList && (node.classList.contains('gloss-panel') || node.classList.contains('page-footer') || node.classList.contains('pl-chevron'))) return;
+    Array.from(node.childNodes).forEach(wrapTerms);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('tbody .td-cell').forEach(cell => {
+    Array.from(cell.childNodes).forEach(wrapTerms);
+  });
+
+  // Tooltip box
+  const box = document.createElement('div');
+  box.className = 'tip-box';
+  document.body.appendChild(box);
+
+  document.addEventListener('mouseover', e => {
+    const t = e.target.closest('.tip');
+    if (!t) return;
+    box.textContent = t.dataset.tip;
+    box.style.display = 'block';
+    const r = t.getBoundingClientRect();
+    let left = r.left + r.width / 2 - 110;
+    let top = r.top - box.offsetHeight - 10;
+    if (left < 8) left = 8;
+    if (left + 220 > window.innerWidth - 8) left = window.innerWidth - 228;
+    if (top < 8) top = r.bottom + 10;
+    box.style.left = left + 'px';
+    box.style.top = top + 'px';
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest('.tip')) box.style.display = 'none';
+  });
+});
+</script>
+</body>
+</html>
