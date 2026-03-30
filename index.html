@@ -156,8 +156,8 @@ tbody tr:last-child td { border-bottom: none; }
             </tr>
             <tr>
               <th class="th-seg s-default" rowspan="2">Standard<small>Prospect Default</small></th>
-              <th class="th-seg s-winback">Fresh<small>&lt; 30 dni</small></th>
-              <th class="th-seg s-winback">Old<small>30–365 dni</small></th>
+              <th class="th-seg s-winback"><span class="tip" data-tip="Winback Fresh – były subskrybent, który zrezygnował mniej niż 30 dni temu. Wysoka szansa na powrót → serwujemy dedykowaną ofertę cenową (Good Offer).">Fresh</span><small>&lt; 30 dni</small></th>
+              <th class="th-seg s-winback"><span class="tip" data-tip="Winback Old – były subskrybent, który zrezygnował 30–365 dni temu. Po 365 dniach traktowany jak nowy user (Acquisition). Komunikacja relacyjna → „Come back" offer.">Old</span><small>30–365 dni</small></th>
               <th class="th-seg s-acq" colspan="2"><span class="tip" data-tip="Likelihood to Subscribe – wysoka skłonność do zakupu (skala 5–10)">High LTS</span><small>Skłonność 5–10</small></th>
               <th class="th-seg s-acq" colspan="2"><span class="tip" data-tip="Likelihood to Subscribe – niska skłonność do zakupu (skala 1–4)">Low LTS</span><small>Skłonność 1–4</small></th>
             </tr>
@@ -218,11 +218,16 @@ tbody tr:last-child td { border-bottom: none; }
                 <span class="pl-hint"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
               </td>
               <td class="td-cell c-default">Kreacja uniwersalna<span class="note">bez ceny</span></td>
-              <td class="td-cell c-good">Good Offer<span class="note">dedykowana kreacja · bez rotacji</span></td>
+              <!-- Winback Fresh -->
+              <td class="td-cell c-good">Good Offer (z ceną 9,90 zł)<span class="note">dedykowana kreacja · bez rotacji</span></td>
               <td class="td-cell c-comeback">„Come back" offer<span class="note">dedykowana kreacja · bez rotacji</span></td>
-              <td class="td-cell c-good">Good Offer<span class="note">dedykowana kreacja · bez rotacji</span></td>
-              <td class="td-cell c-good">Good Offer<span class="note">dedykowana kreacja · bez rotacji</span></td>
+              <!-- High LTS High FRQ -->
+              <td class="td-cell c-good">Good Offer (z ceną 9,90 zł)<span class="note">dedykowana kreacja · bez rotacji</span></td>
+              <!-- High LTS Low FRQ -->
+              <td class="td-cell c-good">Good Offer (z ceną 9,90 zł)<span class="note">dedykowana kreacja · bez rotacji</span></td>
+              <!-- Low LTS High FRQ -->
               <td class="td-cell c-default">Kreacja uniwersalna<span class="note">bez ceny</span></td>
+              <!-- Low LTS Low FRQ -->
               <td class="td-cell c-default">Kreacja uniwersalna<span class="note">bez ceny</span></td>
             </tr>
             <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-top"><div class="gloss-inner">
@@ -252,11 +257,16 @@ tbody tr:last-child td { border-bottom: none; }
                 <span class="pl-hint"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
               </td>
               <td class="td-cell c-na">—</td>
-              <td class="td-cell c-good">Good Offer<span class="note">cap: 1/3 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <!-- Winback Fresh -->
+              <td class="td-cell c-good">Good Offer (z ceną 9,90 zł)<span class="note">cap: 1/3 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
               <td class="td-cell c-comeback">„Come back" offer<span class="note">cap: 1/7 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
-              <td class="td-cell c-good">Good Offer<span class="note">cap: 1/5 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
-              <td class="td-cell c-good">Good Offer<span class="note">cap: 1/3 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
-              <td class="td-cell c-good">Good Offer<span class="note">cap: 1/7 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <!-- High LTS High FRQ -->
+              <td class="td-cell c-good">Good Offer (z ceną 9,90 zł)<span class="note">cap: 1/5 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <!-- High LTS Low FRQ -->
+              <td class="td-cell c-good">Good Offer (z ceną 9,90 zł)<span class="note">cap: 1/3 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <!-- Low LTS High FRQ -->
+              <td class="td-cell c-good">Good Offer (trial 0 zł na 2 tyg)<span class="note">cap: 1/7 dni · 1 sek.</span><span class="note note-warn">tylko gdy brak Welcome Screen</span></td>
+              <!-- Low LTS Low FRQ -->
               <td class="td-cell c-na">—</td>
             </tr>
             <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-modal"><div class="gloss-inner">
@@ -287,11 +297,16 @@ tbody tr:last-child td { border-bottom: none; }
                 <span class="pl-hint"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
               </td>
               <td class="td-cell c-default">Zielona sekcja kafelkowa<span class="note">kreacja edukacyjna</span></td>
-              <td class="td-cell c-good">Layer Good Offer (5 PV)<span class="note">potem rotacja: layer Universal / Good Offer (co 3 PV)</span></td>
+              <!-- Winback Fresh -->
+              <td class="td-cell c-good">Layer Good Offer (z ceną 9,90 zł) (5 PV)<span class="note">potem rotacja: layer Universal / Good Offer (z ceną 9,90 zł) (co 3 PV)</span></td>
               <td class="td-cell c-default">Zielona sekcja kafelkowa<span class="note">kreacja edukacyjna</span></td>
-              <td class="td-cell c-good">Layer Good Offer (5 PV)<span class="note">potem rotacja: layer Universal / Good Offer (co 3 PV)</span></td>
-              <td class="td-cell c-comeback">Zielona sekcja kafelkowa (3 PV)<span class="note">→ layer Good Offer (co 3 PV)</span></td>
+              <!-- High LTS High FRQ -->
+              <td class="td-cell c-good">Layer Good Offer (z ceną 9,90 zł) (5 PV)<span class="note">potem rotacja: layer Universal / Good Offer (z ceną 9,90 zł) (co 3 PV)</span></td>
+              <!-- High LTS Low FRQ -->
+              <td class="td-cell c-comeback">Zielona sekcja kafelkowa (3 PV)<span class="note">→ layer Good Offer (z ceną 9,90 zł) (co 3 PV)</span></td>
+              <!-- Low LTS High FRQ -->
               <td class="td-cell c-comeback">Zielona sekcja kafelkowa<span class="note">+ rotacja kafelkami</span></td>
+              <!-- Low LTS Low FRQ -->
               <td class="td-cell c-default">Zielona sekcja kafelkowa<span class="note">kreacja edukacyjna</span></td>
             </tr>
             <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-onboarding"><div class="gloss-inner">
@@ -322,12 +337,17 @@ tbody tr:last-child td { border-bottom: none; }
                 <span class="pl-hint" style="margin-top:6px;"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#9CA3AF" stroke-width="1.2"/><path d="M5 4.5V6.5M5 3.2V3.4" stroke="#9CA3AF" stroke-width="1.2" stroke-linecap="round"/></svg>Kliknij, aby dowiedzieć się więcej</span>
               </td>
               <td class="td-cell c-default">Kreacja uniwersalna</td>
+              <!-- Winback Fresh -->
               <td class="td-cell c-na">—</td>
               <td class="td-cell c-comeback">„Come back" offer</td>
+              <!-- High LTS High FRQ -->
               <td class="td-cell c-na">—</td>
-              <td class="td-cell c-good">Good Offer</td>
-              <td class="td-cell c-comeback">Sekwencja<span class="note">kreacja uniwersalna → Good Offer</span></td>
-              <td class="td-cell c-comeback">Sekwencja<span class="note">kreacja uniwersalna → Good Offer</span></td>
+              <!-- High LTS Low FRQ -->
+              <td class="td-cell c-good">Good Offer (z ceną 9,90 zł)</td>
+              <!-- Low LTS High FRQ -->
+              <td class="td-cell c-comeback">Sekwencja<span class="note">kreacja uniwersalna → Good Offer (trial 0 zł na 2 tyg)</span></td>
+              <!-- Low LTS Low FRQ -->
+              <td class="td-cell c-comeback">Sekwencja<span class="note">kreacja uniwersalna → Good Offer (trial 0 zł na 2 tyg)</span></td>
             </tr>
             <tr class="gloss-row"><td colspan="99"><div class="gloss-panel" id="gloss-panel-underob"><div class="gloss-inner">
               <div class="gloss-block span2">
@@ -515,7 +535,6 @@ const TERM_TIPS = [
 function wrapTerms(node) {
   if (node.nodeType === Node.TEXT_NODE) {
     const parent = node.parentNode;
-    // Don't process inside .tip spans or non-visible elements
     if (parent.classList && (parent.classList.contains('tip') || parent.classList.contains('note'))) return;
     let text = node.textContent;
     let changed = false;
@@ -532,14 +551,12 @@ function wrapTerms(node) {
         `<span class="tip" data-tip="${tip}">${match}</span>`
       );
     }
-    // Only replace if something actually changed
     if (tmp.innerHTML !== text) {
       const frag = document.createDocumentFragment();
       frag.appendChild(tmp);
       parent.replaceChild(frag, node);
     }
   } else if (node.nodeType === Node.ELEMENT_NODE) {
-    // Skip chevrons, icons, glossary panels, footer
     if (node.classList && (node.classList.contains('gloss-panel') || node.classList.contains('page-footer') || node.classList.contains('pl-chevron'))) return;
     Array.from(node.childNodes).forEach(wrapTerms);
   }
@@ -550,7 +567,6 @@ document.addEventListener('DOMContentLoaded', () => {
     Array.from(cell.childNodes).forEach(wrapTerms);
   });
 
-  // Tooltip box
   const box = document.createElement('div');
   box.className = 'tip-box';
   document.body.appendChild(box);
